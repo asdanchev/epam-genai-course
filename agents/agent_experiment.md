@@ -9,7 +9,7 @@ Our goal was to validate that an AI-assisted agent can connect to a repository, 
 Specifically, we wanted to:
 - confirm repository access and permissions,
 - review a research document directly from the repository, and
-- create a new Markdown file vua the GitHub Contents API to document the experiment itself.
+- create a new Markdown file via the GitHub Contents API to document the experiment itself.
 
 ## 2. Tools and Technologies
 
@@ -19,7 +19,7 @@ Specifically, we wanted to:
 - **Personal Access Token (PAT)** — used for authentication to the GitHub API.
  Credentials were never written into the repository.
   - Note: **PATs** are one of several credential options; the important point is that access must be explicit and auditable.
-- **VCS (toolkit)** – the CodeMie toolkit/utility used to interact with GitHub and the GitHub API (read and write operations). (In parallel, developers can still use local Git workflows for clone/branch/review.)
+- **VCS (toolkit)** – The CodeMie toolkit/utility used to interact with GitHub and the GitHub API (read and write operations). (In parallel, developers can still use local Git workflows for clone/branch/review.)
 
 ## 3. Integration Setup
 
@@ -53,9 +53,10 @@ We also tested writing to the repository by creating this file (`agents/agent_ex
   - Diagnosis: the Contents API requires the `content` field to be valid Base64-encoded UTF-8 file content. Sending annotated/incorrectly encoded payloads will be rejected.
 - **Correction**: we re-encoded the Markdown content as clean Base64 (UTF-8), and retried the request.
 
-Before performing the write operation, we explicitly requested and received human approval to commit directly to ` main `.
+Before performing the write operation, we explicitly requested and received human approval to commit directly to `main `.
 
-The second attempt succeeded and created the file on ` main ` with commit: ``c3fe188c93fcaec97bc0a63108ee399174789a7b``.
+The second attempt succeeded and created the file on `main ` with commit ``73fe188c93fcaec97bc0a63108ee399174789a7b``.
+ This commit added ``agents/agent_experiment.md` to the default branch.
 
 We then verified the file exists in the repository by fetching it again via the Contents API and confirming the GitHub UI URL resolves.
 
@@ -67,7 +68,8 @@ The agent successfully:
 - Read the permissions indicated by the API and reported that read and write access were available for the authenticated context.
  
 - Fetched and analyzed `research/genai_applications.md` and provided a criteria-based review with concrete improvement steps.
-- Attempted to create this file via the Contents API, encountered a schema/encoding error (HTTP 422) and then successfully completed the write after correcting the Base64 encoding and getting explicit human approval to commit to ` main `.
+- Attempted to create this file via the Contents API, encountered a schema/encoding error (HTTP 422) and then successfully completed the write after correcting the Base64 encoding and getting explicit human approval to commit to `main `.
+
 
 ## 6. Security Considerations
 
