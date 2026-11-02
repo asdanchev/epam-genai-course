@@ -47,6 +47,27 @@ A Mermaid diagram showing the relationships between
 AI technologies, language models, prompts,
 RAG, fine-tuning, and AI agents.
 
+### 4. AI Agent Integration Experiment
+
+[Read the experiment report](agents/agent_experiment.md)
+
+A practical experiment integrating EPAM CodeMie AI Assistant
+with a GitHub repository.
+
+The experiment demonstrates:
+
+- Connecting an AI agent to GitHub using a Personal Access Token.
+- Reading repository content through the GitHub REST API.
+- Reviewing technical documentation with AI assistance.
+- Creating and updating files through the GitHub Contents API.
+- Handling API errors, including invalid Base64 encoding.
+- Using the Git Data API to retrieve complete file content.
+- Implementing Human-in-the-Loop approval for repository changes.
+- Evaluating AI agent reliability and technical limitations.
+
+The experiment highlights the importance of human supervision,
+error handling, and output validation in AI-assisted development.
+
 ## Technologies and Tools
 
 - Generative AI
@@ -55,7 +76,11 @@ RAG, fine-tuning, and AI agents.
 - Retrieval-Augmented Generation (RAG)
 - Mermaid
 - Markdown
+- AI Agents and Tool Calling
+- EPAM CodeMie
 - Git and GitHub
+- GitHub REST API
+- Human-in-the-Loop
 
 ---
 

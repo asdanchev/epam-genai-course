@@ -1,87 +1,284 @@
 # AI Agent Integration Experiment
 
-This document summarizes a practical experiment in which we integrated an AI assistant (EPAM CodeMie) with GitHub to perform read operations, review repository content, and (with explicit human approval) create a new file via the GitHub Contents API.
+**Course:** EPAM Tech Orda — Generative AI  
+**Student:** Anton Danchev  
+**Assignment:** Research on Generative AI Applications  
+**Topic:** AI Agent Integration with GitHub  
+**Date:** November 2, 2026
 
-## 1. Objective
+---
 
-Our goal was to validate that an AI-assisted agent can connect to a repository, read content, and deliver actionable feedback without manual copy/paste — while also verifying that repository modification is feasible and controllable when humans approve it.
+## 1. Introduction
 
-Specifically, we wanted to:
-- confirm repository access and permissions,
-- review a research document directly from the repository, and
-- create a new Markdown file via the GitHub Contents API to document the experiment itself.
+This report describes a practical experiment in which an AI assistant, EPAM CodeMie, was integrated with GitHub to perform repository operations, review technical documentation, create and update files, and handle API errors under human supervision.
 
-## 2. Tools and Technologies
+The experiment demonstrates how AI agents can interact with external development tools and highlights the importance of reliability, security, and human oversight.
 
-- **EPAM CodeMie** – the AI assistant used to interact with GitHub and provide analysis and recommendations.
-- **GitHub** – the repository being accessed and updated.
-- **GitHub API** — GitHub REST API endpoints used to read repository metadata, list directory contents, fetch files, and create a new file via the Contents API.
-- **Personal Access Token (PAT)** — used for authentication to the GitHub API.
- Credentials were never written into the repository.
-  - Note: **PATs** are one of several credential options; the important point is that access must be explicit and auditable.
-- **VCS (toolkit)** – The CodeMie toolkit/utility used to interact with GitHub and the GitHub API (read and write operations). (In parallel, developers can still use local Git workflows for clone/branch/review.)
+## 2. Objectives
 
-## 3. Integration Setup
+The main objective was to explore how an AI agent can interact with external development tools and perform useful tasks with minimal manual intervention.
 
-The GitHub integration was configured so that CodeMie could call the GitHub REST API for repository metadata and file content.
+The specific objectives were to:
 
-Credentials were handled via an automatic credentials lookup mechanism (e.g., a secure secrets store or environment configuration), so that the token was not embedded in code or in Markdown documents.
+- Configure an AI assistant with access to a GitHub repository.
+- Verify repository connectivity and permissions.
+- Review a research document directly from the repository.
+- Create a new Markdown file using the GitHub Contents API.
+- Update an existing file and handle API errors.
+- Evaluate the reliability and limitations of AI-assisted development workflows.
 
-The key principle was: the agent can use credentials, but the repository never stores them.
+## 3. Tools and Technologies
 
+| Tool | Purpose |
+|------|---------|
+| **EPAM CodeMie** | AI assistant platform for repository interaction and document analysis. |
+| **GitHub** | Repository hosting and version control. |
+| **GitHub REST API** | Accessing repository metadata, files, and directory contents. |
+| **GitHub Contents API** | Creating and updating files in the repository. |
+| **Git Data API** | Retrieving complete Git objects, including file blobs. |
+| **Personal Access Token (PAT)** | Authentication and authorization for API requests. |
+| **CodeMie VCS Toolkit** | Tools enabling the assistant to interact with GitHub. |
+| **Git** | Local version control and repository synchronization. |
 
-## 4. Experiment
+## 4. Integration Setup
 
-### 4.1. Read-only repository connectivity test
+We created a GitHub integration in EPAM CodeMie and configured it using a fine-grained Personal Access Token.
 
-We used the agent to verify it could access the repository and list the root-level contents via the GitHub API.
+The token was restricted to the repository used for the experiment.
 
-We also checked the permission flags returned by the API to confirm whether read/write access was available for the authenticated context.
+The AI assistant was configured to use the CodeMie VCS toolkit with automatic credentials lookup.
 
+This configuration allowed the assistant to access GitHub without exposing authentication credentials in source code or Markdown documents.
 
-### 4.2. AI-assisted document review
+**Repository:** `asdanchev/epam-genai-course`  
+**Branch:** `main`  
+**Research document:** `research/genai_applications.md`  
+**Experiment report:** `agents/agent_experiment.md`
 
-Next, we asked the agent to review the file `research/genai_applications.md` directly from the repository and evaluate it against a set of quality criteria (structure, technical accuracy, English, risk/limitations, and improvement opportunities).
+An important security principle was established: AI agents should use explicitly authorized credentials and require human approval before modifying repository content.
 
-The result was a concise review with specific, actionable recommendations (e.g., adding cross-cutting sections for evaluation and governance, and making references more consistent).
+## 5. Experiment
 
-### 4.3. Repository modification test (GitHub Contents API)
+### 5.1. Repository Connectivity Test
 
-We also tested writing to the repository by creating this file (`agents/agent_experiment.md`) via the GitHub Contents API.
+First, we asked the AI assistant to connect to the GitHub repository and retrieve its metadata.
 
-- **First attempt**: the create request failed with the GitHub API error `422 – content is not valid Base64`.
-  - Diagnosis: the Contents API requires the `content` field to be valid Base64-encoded UTF-8 file content. Sending annotated/incorrectly encoded payloads will be rejected.
-- **Correction**: we re-encoded the Markdown content as clean Base64 (UTF-8), and retried the request.
+The assistant successfully accessed the repository through the GitHub REST API and listed its root-level files and directories.
 
-Before performing the write operation, we explicitly requested and received human approval to commit directly to `main `.
+The API response indicated that the authenticated context had both read and write permissions.
 
-The second attempt succeeded and created the file on `main ` with commit ``73fe188c93fcaec97bc0a63108ee399174789a7b``.
- This commit added ``agents/agent_experiment.md` to the default branch.
+This confirmed that the integration was configured correctly and that the assistant could interact with the repository.
 
-We then verified the file exists in the repository by fetching it again via the Contents API and confirming the GitHub UI URL resolves.
+### 5.2. AI-Assisted Document Review
 
-## 5. Results
+Next, we asked the assistant to review the research document:
 
-The agent successfully:
- - Accessed the repository metadata and confirmed that it was reachable via the GitHub API.
-- Listed the root-level files and directories to validate repository contents visibility.
-- Read the permissions indicated by the API and reported that read and write access were available for the authenticated context.
- 
-- Fetched and analyzed `research/genai_applications.md` and provided a criteria-based review with concrete improvement steps.
-- Attempted to create this file via the Contents API, encountered a schema/encoding error (HTTP 422) and then successfully completed the write after correcting the Base64 encoding and getting explicit human approval to commit to `main `.
+`research/genai_applications.md`
 
+The assistant retrieved the document directly from GitHub and evaluated its content.
 
-## 6. Security Considerations
+The review focused on:
 
-- **Repository-scoped access**: the experiment was designed to limit access to this repository only, rather than granting broader access to an account or organization.
- 
-- **Minimal permissions**: even when write permissions exist, safe agentic workflows should default to read-only operations and require explicit human approval before any changes are made.
-- **Token hygiene**: access tokens must never be stored in the repository (even in private repos), because they can be leaked via commit history, logs, or accidental sharing. Use secrets managers and rotate tokens when needed.
+- Document structure and readability.
+- Technical accuracy.
+- English language quality.
+- Business value and practical applications.
+- Technical challenges and limitations.
+- Opportunities for improvement.
 
-## 7. Conclusion
+The assistant provided recommendations, including improvements to evaluation criteria, governance considerations, and technical references.
 
-Integrating an AI agent with GitHub makes it possible to automate low-risk read tasks (connectivity checks, content lookups, document reviews) and, when appropriate, to assist with controlled write operations.
+This demonstrated how an AI agent can assist developers with documentation reviews without requiring manual copying and pasting of repository content.
 
-This experiment demonstrated both sides: CodeMie could read and analyze repository content, and it could create a new file via the GitHub Contents API after a clear, human-approved decision and a correct authenticated payload.
+### 5.3. Repository Modification Test
 
-The 422 encoding error was a useful reminder that agentic workflows must include validation and guardrails (format, encoding, and policy) to keep changes both safe and repeatable.
+We then tested whether the AI assistant could create a new file directly in the repository.
+
+**Target file:** `agents/agent_experiment.md`
+
+The assistant attempted to create the file using the GitHub Contents API.
+
+However, the initial request failed with the following error:
+
+```text
+HTTP 422 — content is not valid Base64
+```
+
+The GitHub Contents API requires file content to be encoded as a valid Base64 representation of UTF-8 text.
+
+The initial request contained an invalid payload.
+
+After identifying the problem, we instructed the assistant to correct the encoding and retry the operation.
+
+Before committing changes to the `main` branch, the assistant requested explicit human approval.
+
+After receiving approval and correcting the payload, the assistant successfully created the file.
+
+**Initial creation commit:**
+
+```text
+73fe188c93fcaec97bc0a63108ee399174789a7b
+```
+
+The assistant then verified that the file existed by performing a follow-up API request.
+
+### 5.4. AI-Assisted Document Updates
+
+After reviewing the generated report, we discovered several inaccuracies and formatting issues.
+
+The document initially described only read operations and did not include the successful repository modification experiment.
+
+We asked the assistant to update the report and document the complete workflow.
+
+The assistant successfully performed an initial update.
+
+**Documentation update commit:**
+
+```text
+1ed147791792b3ec783437e05e3f22d4ded31202
+```
+
+However, further attempts to correct formatting and content repeatedly failed with the same HTTP 422 Base64 error.
+
+This revealed an additional technical limitation.
+
+### 5.5. Tool Output Truncation and Git Data API
+
+During the investigation, the assistant reported that the GitHub tool returned truncated file content.
+
+The response contained a truncation marker:
+
+```text
+...[truncated]
+```
+
+As a result, the assistant could not reliably reconstruct the complete Markdown document for encoding and updating.
+
+Attempting to encode incomplete content could result in an invalid payload or accidental loss of document content.
+
+Instead of continuing to retry the same operation, we instructed the assistant to use an alternative approach.
+
+The assistant retrieved the complete file through the Git Data API blob endpoint.
+
+The response contained:
+
+| Property | Value |
+|----------|-------|
+| Blob SHA | `2efcc003d3c9b82c17a9c0e3a2ebcfdab41c04cc` |
+| File size | 5,801 bytes |
+| Content format | Base64 |
+| Truncation | Not detected |
+
+According to the assistant's report, the blob response was complete and did not contain truncation markers.
+
+The assistant then used the retrieved content to prepare another update.
+
+This time, the update succeeded.
+
+**Successful update commit:**
+
+```text
+446553cfe7df7b9b7b288dd99dcaf1fcd07a8950
+```
+
+The assistant verified the updated file through a subsequent GitHub API request.
+
+This demonstrated the importance of selecting appropriate tools and validating data completeness before performing write operations.
+
+### 5.6. Human Review and Final Corrections
+
+Although the assistant successfully updated the document, the generated Markdown still contained minor formatting and language errors.
+
+Examples included:
+
+- Incorrect Markdown code formatting.
+- Unnecessary whitespace.
+- Inconsistent list indentation.
+- Minor grammatical inaccuracies.
+
+We decided to perform the final corrections manually.
+
+This approach demonstrated a practical **Human-in-the-Loop** workflow in which an AI agent performs technical operations while a human reviews the results and ensures their quality.
+
+## 6. Results
+
+The experiment demonstrated several capabilities of AI-assisted development.
+
+### 6.1. Successful Operations
+
+| Operation | Result |
+|-----------|--------|
+| GitHub integration | Successful |
+| Repository metadata retrieval | Successful |
+| Repository permissions check | Successful |
+| AI-assisted document review | Successful |
+| File creation through GitHub API | Successful |
+| File modification through GitHub API | Successful |
+| Base64 error diagnosis | Successful |
+| Alternative Git Data API retrieval | Successful |
+| Human approval before writing | Implemented |
+| Commit verification | Successful |
+
+### 6.2. Identified Limitations
+
+The experiment also revealed several limitations:
+
+- API requests may fail because of incorrectly formatted payloads.
+- Tool responses may be truncated when processing larger documents.
+- AI agents may repeatedly attempt unsuccessful operations without changing their strategy.
+- Generated documentation may contain formatting errors or factual inaccuracies.
+- Human supervision remains necessary for reliable repository modifications.
+
+## 7. Security Considerations
+
+Security was an important part of the experiment.
+
+### 7.1. Repository-Scoped Access
+
+The Personal Access Token was configured to limit access to the repository used for the experiment.
+
+### 7.2. Credential Protection
+
+Authentication credentials were managed through the integration configuration and were not included in repository files.
+
+### 7.3. Human Approval
+
+The assistant requested explicit authorization before committing changes to the `main` branch.
+
+### 7.4. Controlled Modifications
+
+The assistant was instructed to modify only the specified Markdown file and avoid changing unrelated repository content.
+
+### 7.5. Verification
+
+Successful write operations were followed by API requests to verify that the expected files existed.
+
+These practices help reduce risks when AI agents interact with development infrastructure.
+
+## 8. Key Learnings
+
+The experiment provided practical experience with several important concepts in agentic AI systems.
+
+| Concept | Description |
+|---------|-------------|
+| **Tool Calling** | AI agents interact with external services through APIs and specialized tools. |
+| **Error Handling** | Agents identify API errors and adjust their requests accordingly. |
+| **Tool Output Truncation** | Incomplete tool responses can prevent reliable file processing. |
+| **Alternative Tool Strategies** | Different API endpoints can help overcome technical limitations. |
+| **Human-in-the-Loop** | Human approval and review provide additional control over agent operations. |
+| **Agent Reliability** | Successful execution of one operation does not guarantee future success. |
+| **Output Validation** | AI-generated content requires verification for accuracy and completeness. |
+
+## 9. Conclusion
+
+The experiment demonstrated that EPAM CodeMie can be integrated with GitHub to support practical software development tasks.
+
+The AI assistant successfully accessed repository content, reviewed documentation, created files, updated existing files, and verified changes through GitHub API requests.
+
+The experiment also revealed limitations related to Base64 encoding, truncated tool responses, repeated API failures, and documentation quality.
+
+An important improvement was the use of the Git Data API to retrieve complete file content after the original approach encountered truncation problems.
+
+The main conclusion is that AI agents can significantly assist developers, but their actions should remain observable, verifiable, and subject to human supervision.
+
+**AI agents are useful development assistants, but they do not eliminate the need for human judgment, technical validation, and quality control.**
